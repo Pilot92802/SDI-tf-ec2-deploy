@@ -10,7 +10,7 @@ terraform {
 # Configure the AWS Provider
 provider "aws" {
   // Change if you want to use a different AWS region
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
 // Create an EC2 instance
@@ -21,6 +21,14 @@ provider "aws" {
   - Use the latest Amazon Linux 2 AMI for your region (hardcode the AMI ID)
   - Use the default VPC for your region
 */
+
+resource "aws_instance" "rico-ec2-deploy" {
+  ami           = "ami-06d5c50c30a35fb88"
+  instance_type = "t2.micro"
+  key_name      = "rico-ec2kp"
+  security_groups = ["rico-spring-boot"]
+}
+
 
 
 
