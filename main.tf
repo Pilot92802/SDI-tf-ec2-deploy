@@ -43,14 +43,23 @@ resource "aws_instance" "rico-ec2-deploy" {
 
 
 resource "aws_security_group" "rico-ec2-sc" {
-  name        = "allow_tls"
+  name        = "rico-ec2-sc"
   description = "Allow TLS inbound traffic"
 
   ingress {
-    description      = "TLS from VPC"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
+    description = "Allow HTTP inbound traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Allow HTTP inbound traffic"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -61,6 +70,6 @@ resource "aws_security_group" "rico-ec2-sc" {
   }
 
   tags = {
-    Name = "allow_tls"
+    Name = "rico-ec2-sc"
   }
 }
