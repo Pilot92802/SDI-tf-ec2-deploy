@@ -27,6 +27,9 @@ resource "aws_instance" "rico-ec2-deploy" {
   instance_type = "t2.micro"
   key_name      = "rico-ec2kp"
   security_groups = ["rico-spring-boot"]
+  tags = {
+    Name = "rico-ec2-deploy" 
+  }
 }
 
 
