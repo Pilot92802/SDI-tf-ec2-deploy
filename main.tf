@@ -13,34 +13,19 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_instance" "rico-ec2-deploy" {
-  ami           = "ami-06d5c50c30a35fb88"
-  instance_type = "t2.micro"
-  key_name      = "rico-kp-ec2"
-  security_groups = ["rico-security-kp"]
-}
+// Create an EC2 instance
+/*
+  - Name your resources appropriately and use descriptive names
+  - Use a key pair that you have created in the AWS Management Console
+  - Use the `t2.micro` instance type
+  - Use the latest Amazon Linux 2 AMI for your region (hardcode the AMI ID)
+  - Use the default VPC for your region
+*/
 
 
 
-# Create a security group to allow SSH access
-resource "aws_security_group" "rico-security-kp" {
-  name = "rico-security-group"
-  ingress {
-    description = "Allow SSH inbound traffic"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-    ingress {
-    description = "Allow HTTP inbound traffic"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-}
-
-
+// Create a security group for the EC2 instance
+/*
+  - Name your resources appropriately and use descriptive names
+  - Use a Security Group that allows SSH access from anywhere
+*/
