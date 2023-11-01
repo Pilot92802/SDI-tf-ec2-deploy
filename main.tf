@@ -21,11 +21,12 @@ provider "aws" {
   - Use the latest Amazon Linux 2 AMI for your region (hardcode the AMI ID)
   - Use the default VPC for your region
 */
-resource "aws_instance" "web" {
+resource "aws_instance" "ec2_instance" {
   ami                     = var.ami_id
   instance_type           = "t2.micro"
   vpc_security_group_ids  = [var.security_group_name]
   key_name                = "cjd-tf-keypair"
+  iam_instance_profile    = aws_iam_instance_profile.cjd-ec2_instance_profile.id
 
   tags = {
     Name = "cjd-tf-ec2"
@@ -33,32 +34,48 @@ resource "aws_instance" "web" {
 }
 
 
-// Create a security group for the EC2 instance
-/*
-  - Name your resources appropriately and use descriptive names
-  - Use a Security Group that allows SSH access from anywhere
-*/
-resource "aws_security_group" "allow_ssh" {
-  name        = var.security_group_name
-  description = "Allow SSH inbound traffic"
-  vpc_id      = var.default_vpc
+// Create iam role
+resource "aws_iam_role" "ec2_role" {
+  name = "ec2_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-  ingress {
-    description      = "SSH from VPC"
-    from_port        = var.ssh_port
-    to_port          = var.ssh_port
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
+// Create iam role policy
+resource "aws_iam_role_policy" "ec2_role_policy" {
+  name = "ec2_role_policy"
+  role = aws_iam_role.ec2_role.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:CreateBucket",
+          "s3:DeleteBucket",
+          "s3:ListAllMyBuckets"
+        ]
+        Effect = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
 
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
 
-  tags = {
-    Name = "cjd-allow-ssh"
-  }
+// associate the ec2 instance with the role
+resource "aws_iam_instance_profile" "cjd-ec2_instance_profile" {
+  name = "cjd-ec2_instance_profile"
+  role = aws_iam_role.ec2_role.name
 }
